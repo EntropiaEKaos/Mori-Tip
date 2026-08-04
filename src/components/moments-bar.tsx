@@ -5,7 +5,7 @@ import { Avatar } from "@/components/avatar";
 import { useAuth } from "@/components/auth-provider";
 import { CompassLogo } from "@/components/compass-logo";
 import { getFilterCss } from "@/lib/utils";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Heart, Flame, Smile, Laugh, Frown, Hand } from "lucide-react";
 
 type MomentItem = {
   id: number;
@@ -29,10 +29,20 @@ type Group = {
   hasUnseen: boolean;
 };
 
+const REACTIONS = [
+  { key: "heart", Icon: Heart, color: "text-red-500" },
+  { key: "fire", Icon: Flame, color: "text-orange-500" },
+  { key: "wow", Icon: Smile, color: "text-amber-500" },
+  { key: "laugh", Icon: Laugh, color: "text-yellow-500" },
+  { key: "sad", Icon: Frown, color: "text-blue-500" },
+  { key: "clap", Icon: Hand, color: "text-emerald-500" },
+];
+
 export function MomentsBar() {
   const { me } = useAuth();
   const [groups, setGroups] = useState<Group[]>([]);
   const [viewer, setViewer] = useState<{ groupIdx: number; momentIdx: number } | null>(null);
+  const [showReactions, setShowReactions] = useState(false);
   const [composer, setComposer] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [media, setMedia] = useState<string | null>(null);
@@ -70,6 +80,16 @@ export function MomentsBar() {
     }, ms);
     return () => clearTimeout(t);
   }, [viewer, groups, load]);
+
+  async function react(momentId: number, reaction: string) {
+    if (!me) return;
+    setShowReactions(false);
+    await fetch(`/api/moments/${momentId}/react`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reaction }),
+    });
+  }
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -127,29 +147,25 @@ export function MomentsBar() {
       setCaption("");
       setHours(24);
       load();
-    } else {
-      const d = await r.json();
-      alert(d.error || "Erro");
     }
   }
 
-  const current =
-    viewer != null ? groups[viewer.groupIdx]?.moments[viewer.momentIdx] : null;
+  const current = viewer != null ? groups[viewer.groupIdx]?.moments[viewer.momentIdx] : null;
   const currentGroup = viewer != null ? groups[viewer.groupIdx] : null;
 
   return (
     <>
-      <div className="bg-white rounded-2xl border border-[#eae3ce] p-3">
-        <div className="flex items-center justify-between mb-2 px-1">
-          <h2 className="text-sm font-extrabold text-[#0f0f11] flex items-center gap-1.5">
+      <div className="bg-white border border-[#e8e2d4] rounded-3xl p-4">
+        <div className="flex items-center justify-between mb-3 px-1">
+          <h2 className="text-sm font-extrabold flex items-center gap-1.5 text-[#0f0f11]">
             <CompassLogo size={16} /> Momentos
           </h2>
-          <span className="text-[10px] text-[#a89f80]">até 24h</span>
+          <span className="text-[10px] text-[#8a826a] tracking-wider uppercase">até 24h</span>
         </div>
         <div className="flex gap-3 overflow-x-auto scrollbar-thin pb-1">
           {me && (
             <button onClick={() => setComposer(true)} className="shrink-0 flex flex-col items-center gap-1 w-16">
-              <div className="w-14 h-14 rounded-full border-2 border-dashed border-[#c5a84a] grid place-items-center bg-[#fdfaf4]">
+              <div className="w-16 h-16 rounded-full border-2 border-dashed border-[#c5a84a] grid place-items-center bg-[#fdfaf4] hover:scale-105 transition">
                 <Plus size={20} className="text-[#c5a84a]" />
               </div>
               <span className="text-[10px] font-semibold text-[#8a826a]">Seu</span>
@@ -162,14 +178,14 @@ export function MomentsBar() {
               className="shrink-0 flex flex-col items-center gap-1 w-16"
             >
               <div
-                className={`p-[2px] rounded-full ${
+                className={`p-[2px] rounded-full transition ${
                   g.hasUnseen
-                    ? "bg-gradient-to-tr from-[#c5a84a] to-[#0f0f11]"
-                    : "bg-[#eae3ce]"
+                    ? "bg-gradient-to-tr from-[#c5a84a] via-[#e8d99f] to-[#0f0f11]"
+                    : "bg-[#e8e2d4]"
                 }`}
               >
                 <div className="p-[2px] bg-white rounded-full">
-                  <Avatar src={g.authorAvatar} name={g.authorDisplayName} size={48} />
+                  <Avatar src={g.authorAvatar} name={g.authorDisplayName} size={56} />
                 </div>
               </div>
               <span className="text-[10px] font-semibold text-[#0f0f11] truncate w-full text-center">
@@ -178,17 +194,17 @@ export function MomentsBar() {
             </button>
           ))}
           {groups.length === 0 && (
-            <p className="text-xs text-[#a89f80] py-4 px-2">Nenhum momento ativo. Seja o primeiro!</p>
+            <p className="text-xs text-[#8a826a] py-4 px-2">Nenhum momento ativo. Seja o primeiro!</p>
           )}
         </div>
       </div>
 
       {composer && (
-        <div className="fixed inset-0 z-50 bg-black/70 grid place-items-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-5 border border-[#eae3ce]">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm grid place-items-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 border border-[#e8e2d4]">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-extrabold">Novo momento</h3>
-              <button onClick={() => setComposer(false)} className="p-1 hover:bg-[#f5f1e8] rounded-lg">
+              <button onClick={() => setComposer(false)} className="p-1.5 hover:bg-[#fdfaf4] rounded-lg">
                 <X size={18} />
               </button>
             </div>
@@ -196,35 +212,32 @@ export function MomentsBar() {
             {!media ? (
               <button
                 onClick={() => fileRef.current?.click()}
-                className="w-full h-48 rounded-xl border-2 border-dashed border-[#c5a84a] text-[#c5a84a] font-semibold"
+                className="w-full h-48 rounded-2xl border-2 border-dashed border-[#c5a84a] text-[#c5a84a] font-extrabold hover:bg-[#fdfaf4] transition"
               >
                 Escolher foto ou vídeo
               </button>
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={media} alt="" className="w-full max-h-64 object-cover rounded-xl mb-3" />
+              <img src={media} alt="" className="w-full max-h-64 object-cover rounded-2xl mb-3" />
             )}
             <input
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               placeholder="Legenda (opcional)"
-              className="w-full mt-3 rounded-xl border border-[#eae3ce] px-3 py-2 text-sm outline-none focus:border-[#c5a84a]"
+              className="w-full mt-3 bg-[#fdfaf4] border border-[#e8e2d4] rounded-xl px-3 py-2 text-sm outline-none focus:border-[#c5a84a]"
             />
-            <label className="block mt-3 text-xs text-[#8a826a] font-semibold">
-              Duração: {hours}h
+            <label className="block mt-3 text-xs text-[#8a826a] font-bold">
+              Duração: <span className="text-[#c5a84a]">{hours}h</span>
               <input
-                type="range"
-                min={1}
-                max={24}
-                value={hours}
+                type="range" min={1} max={24} value={hours}
                 onChange={(e) => setHours(Number(e.target.value))}
-                className="w-full accent-[#c5a84a]"
+                className="w-full accent-[#c5a84a] mt-1"
               />
             </label>
             <button
               disabled={!media || busy}
               onClick={publish}
-              className="mt-4 w-full bg-[#0f0f11] text-[#c5a84a] font-extrabold rounded-xl py-2.5 disabled:opacity-40"
+              className="mt-4 w-full bg-[#0f0f11] text-[#c5a84a] rounded-xl py-3 font-extrabold disabled:opacity-40 hover:bg-[#1a1815] transition"
             >
               {busy ? "Publicando..." : "Publicar momento"}
             </button>
@@ -234,17 +247,19 @@ export function MomentsBar() {
 
       {viewer && current && currentGroup && (
         <div className="fixed inset-0 z-50 bg-black flex flex-col" onClick={() => setViewer(null)}>
-          <div className="flex gap-1 p-2 pt-3">
+          <div className="flex gap-1.5 p-3 pt-4">
             {currentGroup.moments.map((_, i) => (
-              <div key={i} className="flex-1 h-0.5 bg-white/30 rounded overflow-hidden">
+              <div key={i} className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden">
                 <div
-                  className={`h-full bg-[#c5a84a] ${i < viewer.momentIdx ? "w-full" : i === viewer.momentIdx ? "w-full animate-pulse" : "w-0"}`}
+                  className={`h-full bg-white ${i < viewer.momentIdx ? "w-full" : i === viewer.momentIdx ? "w-full" : "w-0"}`}
+                  style={i === viewer.momentIdx ? { animation: `progress ${Math.min(8000, Math.max(4000, (current.durationHours / 24) * 8000))}ms linear forwards` } : {}}
                 />
               </div>
             ))}
           </div>
-          <div className="flex items-center gap-2 px-3 py-2 text-white">
-            <Avatar src={currentGroup.authorAvatar} name={currentGroup.authorDisplayName} size={32} />
+          <style>{`@keyframes progress { from { width: 0 } to { width: 100% } }`}</style>
+          <div className="flex items-center gap-3 px-4 py-3 text-white">
+            <Avatar src={currentGroup.authorAvatar} name={currentGroup.authorDisplayName} size={36} />
             <div className="flex-1 min-w-0">
               <div className="text-sm font-bold">{currentGroup.authorDisplayName}</div>
               <div className="text-[10px] text-white/60">expira em {current.durationHours}h · {current.viewCount} views</div>
@@ -253,18 +268,41 @@ export function MomentsBar() {
               <X size={20} />
             </button>
           </div>
-          <div className="flex-1 grid place-items-center p-4" onClick={(e) => e.stopPropagation()}>
+          <div className="flex-1 grid place-items-center p-4 relative" onClick={(e) => e.stopPropagation()}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={current.mediaUrl}
               alt=""
-              className="max-h-full max-w-full object-contain rounded-lg"
+              className="max-h-full max-w-full object-contain rounded-2xl"
               style={{ filter: getFilterCss(current.filter) }}
             />
+            {current.caption && (
+              <p className="absolute bottom-4 left-4 right-4 text-white text-center text-sm bg-black/40 backdrop-blur px-4 py-2 rounded-2xl">
+                {current.caption}
+              </p>
+            )}
           </div>
-          {current.caption && (
-            <p className="text-white text-center p-4 text-sm">{current.caption}</p>
-          )}
+          <div className="p-4 flex items-center gap-2 relative">
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowReactions((v) => !v); }}
+              className="flex-1 bg-white/10 backdrop-blur border border-white/20 text-white rounded-full py-2.5 text-sm font-bold flex items-center justify-center gap-2"
+            >
+              <Heart size={16} /> Reagir
+            </button>
+            {showReactions && (
+              <div className="absolute bottom-16 left-4 right-4 bg-[#0f0f11] border border-white/10 rounded-3xl p-2 flex justify-around">
+                {REACTIONS.map(({ key, Icon, color }) => (
+                  <button
+                    key={key}
+                    onClick={(e) => { e.stopPropagation(); react(current.id, key); }}
+                    className="w-12 h-12 rounded-full bg-[#1a1815] hover:scale-110 transition flex items-center justify-center"
+                  >
+                    <Icon size={20} className={color} />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </>

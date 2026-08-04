@@ -496,9 +496,91 @@ export const mpPayments = pgTable("mp_payments", {
 export const systemSettings = pgTable("system_settings", {
   id: serial("id").primaryKey(),
   key: varchar("key", { length: 60 }).notNull(),
-  value: text("value").notNull(), // string or stringified JSON
+  value: text("value").notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [uniqueIndex("settings_key_unique").on(t.key)]);
+
+// ===== Story Highlights (Destaques fixos do perfil) =====
+export const highlights = pgTable("highlights", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 60 }).notNull(),
+  coverUrl: text("cover_url"),
+  momentIds: jsonb("moment_ids").$type<number[]>().default([]).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// ===== Structured Reviews (avaliações 1-5) =====
+export const reviews = pgTable("reviews", {
+  id: serial("id").primaryKey(),
+  authorId: integer("author_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  targetType: varchar("target_type", { length: 20 }).notNull(), // 'inn' | 'guide' | 'product'
+  targetId: integer("target_id").notNull(),
+  rating: integer("rating").notNull(), // 1-5
+  title: varchar("title", { length: 120 }),
+  content: text("content").default("").notNull(),
+  pros: jsonb("pros").$type<string[]>().default([]).notNull(),
+  cons: jsonb("cons").$type<string[]>().default([]).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [index("reviews_target_idx").on(t.targetType, t.targetId)]);
+
+// ===== Scheduled Posts (agendamento) =====
+export const scheduledPosts = pgTable("scheduled_posts", {
+  id: serial("id").primaryKey(),
+  authorId: integer("author_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  content: text("content").default("").notNull(),
+  mediaUrls: jsonb("media_urls").$type<string[]>().default([]).notNull(),
+  filter: varchar("filter", { length: 40 }),
+  tags: jsonb("tags").$type<string[]>().default([]).notNull(),
+  scheduledFor: timestamp("scheduled_for", { withTimezone: true }).notNull(),
+  status: varchar("status", { length: 20 }).default("pending").notNull(), // pending | published | failed
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// ===== Pinned Posts (posts fixados no perfil) =====
+export const pinnedPosts = pgTable("pinned_posts", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  postId: integer("post_id").notNull().references(() => posts.id, { onDelete: "cascade" }),
+  position: integer("position").default(0).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [uniqueIndex("pinned_unique").on(t.userId, t.postId)]);
+
+// ===== Itinerary Collaborators (roteiros colaborativos) =====
+export const itineraryCollaborators = pgTable("itinerary_collaborators", {
+  id: serial("id").primaryKey(),
+  itineraryId: integer("itinerary_id").notNull().references(() => itineraries.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  role: varchar("role", { length: 20 }).default("editor").notNull(), // viewer | editor | admin
+  invitedAt: timestamp("invited_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [uniqueIndex("itin_collab_unique").on(t.itineraryId, t.userId)]);
+
+// ===== Story Views com tempo assistido =====
+export const storyReactions = pgTable("story_reactions", {
+  id: serial("id").primaryKey(),
+  momentId: integer("moment_id").notNull().references(() => moments.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  reaction: varchar("reaction", { length: 20 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [uniqueIndex("story_reactions_unique").on(t.momentId, t.userId)]);
+
+// ===== Poll/Vote em posts =====
+export const postPolls = pgTable("post_polls", {
+  id: serial("id").primaryKey(),
+  postId: integer("post_id").notNull().references(() => posts.id, { onDelete: "cascade" }),
+  question: varchar("question", { length: 200 }).notNull(),
+  options: jsonb("options").$type<Array<{ id: string; text: string; votes: number }>>().default([]).notNull(),
+  closesAt: timestamp("closes_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const postPollVotes = pgTable("post_poll_votes", {
+  id: serial("id").primaryKey(),
+  pollId: integer("poll_id").notNull().references(() => postPolls.id, { onDelete: "cascade" }),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  optionId: varchar("option_id", { length: 50 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [uniqueIndex("poll_vote_unique").on(t.pollId, t.userId)]);
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({

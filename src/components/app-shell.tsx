@@ -26,8 +26,11 @@ import {
   Megaphone,
   CalendarCheck,
   Sparkles,
+  Clock,
+  Star,
 } from "lucide-react";
 import { CompassLogo } from "@/components/compass-logo";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { useAuth } from "@/components/auth-provider";
 import { Avatar } from "@/components/avatar";
 import { cn } from "@/lib/utils";
@@ -72,6 +75,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { href: "/guias", label: "Guias", icon: UsersRound },
     { href: "/pousadas", label: "Pousadas", icon: MapPin },
     { href: "/reservas", label: "Reservas", icon: CalendarCheck },
+    { href: "/scheduled", label: "Agendados", icon: Clock },
+    { href: "/highlights", label: "Destaques", icon: Star },
     { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
     { href: "/lives", label: "Lives", icon: Radio },
     { href: "/notifications", label: "Notificações", icon: Bell, badge: unread },
@@ -118,10 +123,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           )}
         >
           <div className="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col h-full">
-        <Link href="/feed" className="hidden lg:flex items-center gap-2 font-extrabold text-2xl mb-4 px-2 tracking-tight">
-          <CompassLogo size={28} />
-          <span className="text-[#c5a84a]">Mori</span>
-        </Link>
+            <Link href="/feed" className="hidden lg:flex items-center gap-2 font-extrabold text-2xl mb-4 px-2 tracking-tight">
+              <CompassLogo size={28} />
+              <span className="text-[#c5a84a]">Mori</span>
+            </Link>
+            <div className="hidden lg:block mb-3">
+              <LanguageSwitcher />
+            </div>
             <nav className="flex flex-col gap-1">
               {nav.map((n) => {
                 const active = pathname === n.href || pathname.startsWith(n.href + "/");

@@ -3,110 +3,106 @@
 :root {
   --gold: #c5a84a;
   --gold-deep: #9b8038;
+  --gold-soft: #e8d99f;
   --black: #0f0f11;
   --white: #ffffff;
   --ivory: #faf8f3;
   --paper: #f8f6f0;
   --text: #1a1815;
   --muted: #8a826a;
+  --line: #e8e2d4;
 }
 
-html, body {
-  height: 100%;
-}
+html, body { height: 100%; }
 
 body {
-  background: var(--ivory);
+  background: linear-gradient(180deg, #ffffff 0%, var(--ivory) 100%);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   font-family: ui-sans-serif, system-ui, -apple-system, "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-feature-settings: "ss01", "cv01";
 }
 
-/* === LUXURY CLEAN AESTHETIC (Gold + Black on generous White) === */
-::selection {
-  background: rgba(197, 168, 74, 0.2);
-  color: var(--black);
-}
+::selection { background: rgba(197, 168, 74, 0.22); color: var(--black); }
 
-.mori-container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
+/* === ULTRA-MODERN DESIGN SYSTEM (Gold accents, generous white, black contrast) === */
+.mori-container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
 
 .mori-card {
   background: var(--white);
-  border: 1px solid #e8e2d4;
-  border-radius: 2rem;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--line);
+  border-radius: 1.75rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02), 0 8px 24px rgba(15,15,17,0.02);
   transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 .mori-card:hover {
   border-color: var(--gold);
-  box-shadow: 0 12px 40px rgba(197, 168, 74, 0.08);
-  transform: translateY(-4px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02), 0 16px 48px rgba(197,168,74,0.10);
+  transform: translateY(-2px);
 }
 
 .mori-input {
   background: var(--white);
-  border: 1px solid #e8e2d4;
-  border-radius: 1rem;
-  padding: 1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 0.875rem;
+  padding: 0.85rem 1.15rem;
   font-size: 0.95rem;
   transition: all 0.2s ease;
+  outline: none;
 }
 .mori-input:focus {
   border-color: var(--gold);
-  box-shadow: 0 0 0 4px rgba(197, 168, 74, 0.1);
-  outline: none;
+  box-shadow: 0 0 0 4px rgba(197, 168, 74, 0.10);
 }
 
-/* Elegant Gold Accents */
+/* Glass / Glow utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(232, 226, 212, 0.8);
+}
+
+.gold-glow {
+  background: radial-gradient(circle, rgba(197, 168, 74, 0.10) 0%, transparent 70%);
+}
+
 .gold-text { color: var(--gold); }
 .gold-border { border-color: var(--gold); }
 .gold-bg { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-deep) 100%); }
 
-/* Mobile Bottom Navigation */
-.mobile-bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--white);
-  border-top: 1px solid #e8e2d4;
-  padding-bottom: env(safe-area-inset-bottom);
-  z-index: 100;
-  display: none;
-}
-@media (max-width: 768px) {
-  .mobile-bottom-nav { display: flex; }
-}
-
-/* Beautiful Loading States */
+/* Loading shimmer */
 .skeleton {
   background: linear-gradient(90deg, #f4f1e9 25%, #ede8dc 50%, #f4f1e9 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: shimmer 1.6s infinite;
+  border-radius: 1rem;
 }
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
 
-/* PWA Install Prompt */
-.install-prompt {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--black);
-  color: var(--gold);
-  padding: 1rem 1.5rem;
-  border-radius: 9999px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 600;
-  z-index: 200;
+@keyframes goldPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(197, 168, 74, 0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(197, 168, 74, 0); }
+}
+.gold-pulse { animation: goldPulse 2s ease-in-out infinite; }
+
+.scrollbar-thin::-webkit-scrollbar { width: 5px; height: 5px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #dcd0bc; border-radius: 99px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+
+/* Refined chat bubbles */
+.chat-bubble-me {
+  background: linear-gradient(135deg, #0f0f11 0%, #1e1d21 100%);
+  color: #fefcf3;
+  border: 1px solid rgba(197, 168, 74, 0.25);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+}
+.chat-bubble-other {
+  background: #ffffff;
+  color: var(--black);
+  border: 1px solid var(--line);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
