@@ -25,6 +25,7 @@ import {
   Trophy,
   Megaphone,
   CalendarCheck,
+  Sparkles,
 } from "lucide-react";
 import { CompassLogo } from "@/components/compass-logo";
 import { useAuth } from "@/components/auth-provider";
@@ -65,6 +66,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const nav = [
     { href: "/feed", label: "Feed", icon: Home },
+    { href: "/concierge", label: "IA Concierge", icon: Sparkles },
     { href: "/explore", label: "Explorar", icon: Compass },
     { href: "/roteiros", label: "Roteiros", icon: Route },
     { href: "/guias", label: "Guias", icon: UsersRound },

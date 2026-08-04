@@ -18,3 +18,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
+
+// Disable static page pre-generation globally (avoids Next.js OOM on constrained sandboxes)
+export const dynamic = "force-dynamic";
+export const revalidate = 0;

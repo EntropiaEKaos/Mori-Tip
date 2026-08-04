@@ -35,14 +35,13 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
   const load = useCallback(async () => {
     const [pr, po] = await Promise.all([
       fetch(`/api/users/${username}`).then((r) => (r.ok ? r.json() : null)),
-      fetch(`/api/posts?authorId=@${username}`).then(async () => null), // placeholder to keep types; refetched below
+      fetch(`/api/posts?authorId=@${username}`).then(async () => null),
     ]);
     setProfile(pr);
     if (pr) {
       const r = await fetch(`/api/posts?authorId=${pr.id}`);
       if (r.ok) setPosts(await r.json());
     }
-    // avoid lint
     void po;
   }, [username]);
 
@@ -156,3 +155,6 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;

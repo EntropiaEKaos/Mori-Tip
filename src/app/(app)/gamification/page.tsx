@@ -90,3 +90,5 @@ export default function GamificationPage() {
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";

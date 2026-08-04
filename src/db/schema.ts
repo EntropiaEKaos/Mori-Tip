@@ -51,6 +51,7 @@ export const productTypeEnum = pgEnum("product_type", [
   "service",
 ]);
 export const promoStatusEnum = pgEnum("promo_status", ["active", "paused", "ended"]);
+export const paymentStatusEnum = pgEnum("payment_status", ["pending", "approved", "rejected", "refunded"]);
 
 export const users = pgTable(
   "users",
@@ -58,6 +59,7 @@ export const users = pgTable(
     id: serial("id").primaryKey(),
     username: varchar("username", { length: 40 }).notNull(),
     email: varchar("email", { length: 160 }).notNull(),
+    phoneNumber: varchar("phone_number", { length: 24 }),
     passwordHash: text("password_hash").notNull(),
     displayName: varchar("display_name", { length: 80 }).notNull(),
     bio: text("bio").default("").notNull(),
@@ -73,8 +75,8 @@ export const users = pgTable(
     xp: integer("xp").default(0).notNull(),
     level: integer("level").default(1).notNull(),
     // Economy
-    moris: integer("moris").default(100).notNull(), // welcome bonus
-    credits: integer("credits").default(0).notNull(), // ad credits
+    moris: integer("moris").default(100).notNull(),
+    credits: integer("credits").default(0).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
@@ -101,7 +103,6 @@ export const inns = pgTable(
     rating: integer("rating").default(0).notNull(),
     amenities: jsonb("amenities").$type<string[]>().default([]).notNull(),
     isApproved: boolean("is_approved").default(false).notNull(),
-    // Monetization
     acceptsBookings: boolean("accepts_bookings").default(false).notNull(),
     commissionPct: integer("commission_pct").default(10).notNull(),
     totalBookings: integer("total_bookings").default(0).notNull(),
@@ -275,7 +276,6 @@ export const rtcSignals = pgTable(
   (t) => [index("rtc_room_idx").on(t.roomId, t.createdAt)],
 );
 
-// ===== Moments (stories-like, up to 24h) =====
 export const moments = pgTable(
   "moments",
   {
@@ -284,10 +284,10 @@ export const moments = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     mediaUrl: text("media_url").notNull(),
-    mediaType: varchar("media_type", { length: 20 }).default("image").notNull(), // image | video
+    mediaType: varchar("media_type", { length: 20 }).default("image").notNull(),
     caption: text("caption").default("").notNull(),
     filter: varchar("filter", { length: 40 }),
-    durationHours: integer("duration_hours").default(24).notNull(), // 1-24
+    durationHours: integer("duration_hours").default(24).notNull(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     viewCount: integer("view_count").default(0).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -310,7 +310,6 @@ export const momentViews = pgTable(
   (t) => [uniqueIndex("moment_views_unique").on(t.momentId, t.userId)],
 );
 
-// ===== Itineraries (roteiros) =====
 export const itineraries = pgTable("itineraries", {
   id: serial("id").primaryKey(),
   authorId: integer("author_id")
@@ -322,7 +321,7 @@ export const itineraries = pgTable("itineraries", {
   city: varchar("city", { length: 100 }).notNull(),
   state: varchar("state", { length: 100 }).notNull(),
   days: integer("days").default(1).notNull(),
-  budget: integer("budget").default(0).notNull(), // BRL estimate
+  budget: integer("budget").default(0).notNull(),
   tags: jsonb("tags").$type<string[]>().default([]).notNull(),
   stops: jsonb("stops")
     .$type<Array<{ day: number; title: string; description: string; location?: string }>>()
@@ -333,7 +332,6 @@ export const itineraries = pgTable("itineraries", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-// ===== Local Guides =====
 export const guides = pgTable("guides", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
@@ -353,7 +351,6 @@ export const guides = pgTable("guides", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-// ===== Bookings (premium feature) =====
 export const bookings = pgTable("bookings", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
@@ -366,14 +363,13 @@ export const bookings = pgTable("bookings", {
   checkOut: timestamp("check_out", { withTimezone: true }).notNull(),
   guests: integer("guests").default(1).notNull(),
   nights: integer("nights").notNull(),
-  totalPrice: integer("total_price").notNull(), // BRL cents or whole reais
+  totalPrice: integer("total_price").notNull(),
   paidWithMoris: integer("paid_with_moris").default(0).notNull(),
   status: bookingStatusEnum("status").default("pending").notNull(),
   notes: text("notes").default("").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-// ===== Gamification badges =====
 export const badges = pgTable("badges", {
   id: serial("id").primaryKey(),
   key: varchar("key", { length: 40 }).notNull(),
@@ -382,7 +378,7 @@ export const badges = pgTable("badges", {
   icon: varchar("icon", { length: 10 }).default("🏅").notNull(),
   xpReward: integer("xp_reward").default(50).notNull(),
   morisReward: integer("moris_reward").default(0).notNull(),
-  requirement: varchar("requirement", { length: 80 }).notNull(), // e.g. posts:5
+  requirement: varchar("requirement", { length: 80 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [uniqueIndex("badges_key_unique").on(t.key)]);
 
@@ -401,7 +397,6 @@ export const userBadges = pgTable(
   (t) => [uniqueIndex("user_badges_unique").on(t.userId, t.badgeId)],
 );
 
-// ===== Credits & Promoted posts =====
 export const creditPackages = pgTable("credit_packages", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 80 }).notNull(),
@@ -431,7 +426,6 @@ export const promotions = pgTable("promotions", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-// ===== Marketplace =====
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   sellerId: integer("seller_id")
@@ -470,19 +464,41 @@ export const orders = pgTable("orders", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-// ===== Wallet transactions =====
 export const transactions = pgTable("transactions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  kind: varchar("kind", { length: 40 }).notNull(), // earn | spend | purchase_credits | booking | sale | reward
+  kind: varchar("kind", { length: 40 }).notNull(),
   amountMoris: integer("amount_moris").default(0).notNull(),
   amountCredits: integer("amount_credits").default(0).notNull(),
   description: text("description").default("").notNull(),
   meta: jsonb("meta").$type<Record<string, unknown>>().default({}).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+// ===== Mercado Pago Deposits & Real Transactions =====
+export const mpPayments = pgTable("mp_payments", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  preferenceId: varchar("preference_id", { length: 120 }).notNull(),
+  paymentId: varchar("payment_id", { length: 120 }),
+  amountBrl: real("amount_brl").notNull(),
+  morisCredited: integer("moris_credited").notNull(),
+  status: paymentStatusEnum("status").default("pending").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// ===== Configurações Globais Configurable via Admin =====
+export const systemSettings = pgTable("system_settings", {
+  id: serial("id").primaryKey(),
+  key: varchar("key", { length: 60 }).notNull(),
+  value: text("value").notNull(), // string or stringified JSON
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [uniqueIndex("settings_key_unique").on(t.key)]);
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({

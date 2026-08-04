@@ -87,3 +87,5 @@ export default function RoteiroDetailPage({ params }: { params: Promise<{ id: st
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";

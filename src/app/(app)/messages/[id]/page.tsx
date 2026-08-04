@@ -33,7 +33,6 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
   const fileRef = useRef<HTMLInputElement>(null);
 
   const loadInfo = useCallback(async () => {
-    // We reuse /api/conversations to get member info
     const r = await fetch("/api/conversations", { cache: "no-store" });
     if (r.ok) {
       const list: ConvInfo[] = await r.json();
@@ -173,7 +172,6 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
                 <div className={`text-[10px] mt-1 flex items-center gap-1 ${mine ? "text-white/70 justify-end" : "text-slate-400"}`}>
                   {timeAgo(m.createdAt)}
                   {mine && <CheckCheck size={12} />}
-                  {!mine && <Check size={12} className="opacity-0" />}
                 </div>
               </div>
             </div>
@@ -203,3 +201,6 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
