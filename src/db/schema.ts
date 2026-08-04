@@ -30,15 +30,7 @@ export const notificationTypeEnum = pgEnum("notification_type", [
 ]);
 export const liveStatusEnum = pgEnum("live_status", ["scheduled", "live", "ended"]);
 export const messageTypeEnum = pgEnum("message_type", ["text", "image", "audio", "video"]);
-export const postTypeEnum = pgEnum("post_type", [
-  "text",
-  "photo",
-  "video",
-  "carousel",
-  "tip",
-  "review",
-  "promo",
-]);
+export const postTypeEnum = pgEnum("post_type", ["text", "photo", "video", "carousel", "tip", "review", "promo"]);
 export const bookingStatusEnum = pgEnum("booking_status", [
   "pending",
   "confirmed",
@@ -59,17 +51,7 @@ export const productTypeEnum = pgEnum("product_type", [
   "service",
 ]);
 export const promoStatusEnum = pgEnum("promo_status", ["active", "paused", "ended"]);
-export const paymentStatusEnum = pgEnum("payment_status", [
-  "pending",
-  "approved",
-  "rejected",
-  "refunded",
-]);
-export const verificationStatusEnum = pgEnum("verification_status", [
-  "pending",
-  "approved",
-  "rejected",
-]);
+export const paymentStatusEnum = pgEnum("payment_status", ["pending", "approved", "rejected", "refunded"]);
 
 export const users = pgTable(
   "users",
@@ -78,7 +60,6 @@ export const users = pgTable(
     username: varchar("username", { length: 40 }).notNull(),
     email: varchar("email", { length: 160 }).notNull(),
     phoneNumber: varchar("phone_number", { length: 24 }),
-    googleId: varchar("google_id", { length: 80 }),
     passwordHash: text("password_hash").notNull(),
     displayName: varchar("display_name", { length: 80 }).notNull(),
     bio: text("bio").default("").notNull(),
@@ -86,13 +67,14 @@ export const users = pgTable(
     coverUrl: text("cover_url"),
     location: varchar("location", { length: 120 }),
     role: roleEnum("role").default("user").notNull(),
-    hasChosenRole: boolean("has_chosen_role").default(false).notNull(),
     isVerified: boolean("is_verified").default(false).notNull(),
     isBanned: boolean("is_banned").default(false).notNull(),
     isPremium: boolean("is_premium").default(false).notNull(),
     premiumUntil: timestamp("premium_until", { withTimezone: true }),
+    // Gamification
     xp: integer("xp").default(0).notNull(),
     level: integer("level").default(1).notNull(),
+    // Economy
     moris: integer("moris").default(100).notNull(),
     credits: integer("credits").default(0).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -103,22 +85,6 @@ export const users = pgTable(
   ],
 );
 
-// ===== Verification Requests (pousadas, restaurantes, guias) =====
-export const verificationRequests = pgTable("verification_requests", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  entityType: varchar("entity_type", { length: 30 }).notNull(), // inn, restaurant, guide
-  entityId: integer("entity_id").notNull(),
-  documents: jsonb("documents").$type<string[]>().default([]).notNull(),
-  status: verificationStatusEnum("status").default("pending").notNull(),
-  adminNotes: text("admin_notes").default("").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
-
-// ===== Inns =====
 export const inns = pgTable(
   "inns",
   {
@@ -137,7 +103,6 @@ export const inns = pgTable(
     rating: integer("rating").default(0).notNull(),
     amenities: jsonb("amenities").$type<string[]>().default([]).notNull(),
     isApproved: boolean("is_approved").default(false).notNull(),
-    isVerified: boolean("is_verified").default(false).notNull(),
     acceptsBookings: boolean("accepts_bookings").default(false).notNull(),
     commissionPct: integer("commission_pct").default(10).notNull(),
     totalBookings: integer("total_bookings").default(0).notNull(),
@@ -148,35 +113,6 @@ export const inns = pgTable(
   (t) => [uniqueIndex("inns_slug_unique").on(t.slug)],
 );
 
-// ===== Restaurants =====
-export const restaurants = pgTable(
-  "restaurants",
-  {
-    id: serial("id").primaryKey(),
-    ownerId: integer("owner_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    name: varchar("name", { length: 120 }).notNull(),
-    slug: varchar("slug", { length: 140 }).notNull(),
-    description: text("description").default("").notNull(),
-    city: varchar("city", { length: 100 }).notNull(),
-    state: varchar("state", { length: 100 }).notNull(),
-    country: varchar("country", { length: 100 }).default("Brasil").notNull(),
-    coverUrl: text("cover_url"),
-    cuisineType: varchar("cuisine_type", { length: 60 }),
-    avgPrice: integer("avg_price").default(0).notNull(),
-    rating: integer("rating").default(0).notNull(),
-    amenities: jsonb("amenities").$type<string[]>().default([]).notNull(),
-    isApproved: boolean("is_approved").default(false).notNull(),
-    isVerified: boolean("is_verified").default(false).notNull(),
-    acceptsReservations: boolean("accepts_reservations").default(false).notNull(),
-    totalBookings: integer("total_bookings").default(0).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  },
-  (t) => [uniqueIndex("restaurants_slug_unique").on(t.slug)],
-);
-
-// ===== Posts (updated to also reference restaurants) =====
 export const posts = pgTable(
   "posts",
   {
@@ -185,9 +121,6 @@ export const posts = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     innId: integer("inn_id").references(() => inns.id, { onDelete: "set null" }),
-    restaurantId: integer("restaurant_id").references(() => restaurants.id, {
-      onDelete: "set null",
-    }),
     type: postTypeEnum("type").default("text").notNull(),
     content: text("content").default("").notNull(),
     imageUrl: text("image_url"),
@@ -204,7 +137,6 @@ export const posts = pgTable(
   (t) => [index("posts_author_idx").on(t.authorId), index("posts_created_idx").on(t.createdAt)],
 );
 
-// ===== Comments =====
 export const comments = pgTable("comments", {
   id: serial("id").primaryKey(),
   postId: integer("post_id")
@@ -261,7 +193,6 @@ export const notifications = pgTable("notifications", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-// ===== Chat =====
 export const conversations = pgTable("conversations", {
   id: serial("id").primaryKey(),
   isGroup: boolean("is_group").default(false).notNull(),
@@ -302,7 +233,6 @@ export const messages = pgTable(
   (t) => [index("messages_conv_idx").on(t.conversationId, t.createdAt)],
 );
 
-// ===== Lives =====
 export const lives = pgTable("lives", {
   id: serial("id").primaryKey(),
   hostId: integer("host_id")
@@ -346,7 +276,6 @@ export const rtcSignals = pgTable(
   (t) => [index("rtc_room_idx").on(t.roomId, t.createdAt)],
 );
 
-// ===== Moments =====
 export const moments = pgTable(
   "moments",
   {
@@ -381,7 +310,6 @@ export const momentViews = pgTable(
   (t) => [uniqueIndex("moment_views_unique").on(t.momentId, t.userId)],
 );
 
-// ===== Itineraries, Guides, Bookings, Badges, etc =====
 export const itineraries = pgTable("itineraries", {
   id: serial("id").primaryKey(),
   authorId: integer("author_id")
@@ -428,12 +356,13 @@ export const bookings = pgTable("bookings", {
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  innId: integer("inn_id").references(() => inns.id, { onDelete: "cascade" }),
-  restaurantId: integer("restaurant_id").references(() => restaurants.id, { onDelete: "cascade" }),
+  innId: integer("inn_id")
+    .notNull()
+    .references(() => inns.id, { onDelete: "cascade" }),
   checkIn: timestamp("check_in", { withTimezone: true }).notNull(),
-  checkOut: timestamp("check_out", { withTimezone: true }),
+  checkOut: timestamp("check_out", { withTimezone: true }).notNull(),
   guests: integer("guests").default(1).notNull(),
-  nights: integer("nights").default(0).notNull(),
+  nights: integer("nights").notNull(),
   totalPrice: integer("total_price").notNull(),
   paidWithMoris: integer("paid_with_moris").default(0).notNull(),
   status: bookingStatusEnum("status").default("pending").notNull(),
@@ -503,7 +432,6 @@ export const products = pgTable("products", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   innId: integer("inn_id").references(() => inns.id, { onDelete: "set null" }),
-  restaurantId: integer("restaurant_id").references(() => restaurants.id, { onDelete: "set null" }),
   name: varchar("name", { length: 160 }).notNull(),
   description: text("description").default("").notNull(),
   type: productTypeEnum("type").default("physical").notNull(),
@@ -549,6 +477,7 @@ export const transactions = pgTable("transactions", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+// ===== Mercado Pago Deposits & Real Transactions =====
 export const mpPayments = pgTable("mp_payments", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
@@ -563,13 +492,15 @@ export const mpPayments = pgTable("mp_payments", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+// ===== Configurações Globais Configurable via Admin =====
 export const systemSettings = pgTable("system_settings", {
   id: serial("id").primaryKey(),
   key: varchar("key", { length: 60 }).notNull(),
-  value: text("value").notNull(),
+  value: text("value").notNull(), // string or stringified JSON
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [uniqueIndex("settings_key_unique").on(t.key)]);
 
+// Relations
 export const usersRelations = relations(users, ({ many }) => ({
   posts: many(posts),
   followers: many(follows, { relationName: "followers" }),

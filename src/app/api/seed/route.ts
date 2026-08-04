@@ -3,14 +3,12 @@ import {
   users,
   posts,
   inns,
-  restaurants,
   follows,
   creditPackages,
   products,
   itineraries,
   guides,
   badges,
-  verificationRequests,
 } from "@/db/schema";
 import { hashPassword } from "@/lib/auth";
 import { handleApi } from "@/lib/api";
@@ -239,36 +237,6 @@ export async function POST() {
         stock: 999,
         city: "Chapada Diamantina",
         tags: ["digital", "trilha"],
-      },
-    ]);
-
-    await db.insert(restaurants).values([
-      {
-        ownerId: host1.id,
-        name: "Restaurante Sabores de Jeri",
-        slug: `${slugify("Sabores de Jeri")}-${Date.now().toString(36)}`,
-        description: "Frutos do mar frescos com vista para o pôr do sol.",
-        city: "Jericoacoara",
-        state: "CE",
-        cuisineType: "Frutos do Mar",
-        avgPrice: 90,
-        rating: 4,
-        amenities: ["Vista", "Ar-condicionado", "Carta de vinhos"],
-        isApproved: true,
-        isVerified: true,
-      },
-      {
-        ownerId: host2.id,
-        name: "Trattoria da Serra",
-        slug: `${slugify("Trattoria da Serra")}-${Date.now().toString(36)}`,
-        description: "Massas artesanais em ambiente aconchegante com lareira.",
-        city: "Monte Verde",
-        state: "MG",
-        cuisineType: "Italiana",
-        avgPrice: 120,
-        rating: 5,
-        amenities: ["Lareira", "Adega", "Terraço"],
-        isApproved: true,
       },
     ]);
 
