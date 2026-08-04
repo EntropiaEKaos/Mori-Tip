@@ -26,6 +26,9 @@ import {
   Megaphone,
   CalendarCheck,
   Sparkles,
+  TrendingUp,
+  Smartphone,
+  ToggleLeft,
 } from "lucide-react";
 import { CompassLogo } from "@/components/compass-logo";
 import { useAuth } from "@/components/auth-provider";
@@ -80,6 +83,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { href: "/gamification", label: "Níveis", icon: Trophy },
     { href: "/premium", label: "Premium", icon: Crown },
     { href: "/promote", label: "Divulgar", icon: Megaphone },
+    { href: "/admin/metrics", label: "Métricas", icon: TrendingUp },
+    { href: "/admin/mobile", label: "Apps Mobile", icon: Smartphone },
+    { href: "/admin/features", label: "Feature Flags", icon: ToggleLeft },
   ];
 
   async function logout() {
