@@ -26,6 +26,7 @@ import {
   Megaphone,
   CalendarCheck,
   Sparkles,
+  Utensils,
 } from "lucide-react";
 import { CompassLogo } from "@/components/compass-logo";
 import { useAuth } from "@/components/auth-provider";
@@ -71,6 +72,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { href: "/roteiros", label: "Roteiros", icon: Route },
     { href: "/guias", label: "Guias", icon: UsersRound },
     { href: "/pousadas", label: "Pousadas", icon: MapPin },
+    { href: "/restaurantes", label: "Restaurantes", icon: Utensils },
     { href: "/reservas", label: "Reservas", icon: CalendarCheck },
     { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
     { href: "/lives", label: "Lives", icon: Radio },

@@ -6,12 +6,14 @@ export type Me = {
   id: number;
   username: string;
   email: string;
+  phoneNumber?: string | null;
   displayName: string;
   bio: string;
   avatarUrl: string | null;
   coverUrl: string | null;
   location: string | null;
   role: "user" | "host" | "guide" | "admin";
+  hasChosenRole: boolean;
   isVerified: boolean;
   isPremium: boolean;
   premiumUntil: string | null;

@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "Mori",
+    "slug": "mori-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0f0f11",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.mori.corporate"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0f0f11"
+      },
+      "package": "app.mori.corporate"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
