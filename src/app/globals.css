@@ -1,94 +1,112 @@
 @import "tailwindcss";
 
 :root {
-  --brand-gold: #c5a84a;
-  --brand-gold-deep: #9b8038;
-  --brand-black: #0f0f11;
-  --brand-paper: #fcf9f2;
-  --brand-ivory: #f4efdf;
+  --gold: #c5a84a;
+  --gold-deep: #9b8038;
+  --black: #0f0f11;
+  --white: #ffffff;
+  --ivory: #faf8f3;
+  --paper: #f8f6f0;
+  --text: #1a1815;
+  --muted: #8a826a;
 }
 
-html,
-body {
+html, body {
   height: 100%;
 }
 
 body {
-  background: radial-gradient(circle at top right, #fdfbfa 0%, #f4eee2 100%);
-  color: var(--brand-black);
+  background: var(--ivory);
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Inter", "Helvetica Neue", Arial, sans-serif;
 }
 
+/* === LUXURY CLEAN AESTHETIC (Gold + Black on generous White) === */
 ::selection {
-  background: rgba(197, 168, 74, 0.25);
-  color: #0f0f11;
+  background: rgba(197, 168, 74, 0.2);
+  color: var(--black);
 }
 
-/* Luxurious gold custom animations */
-@keyframes goldPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(197, 168, 74, 0.4); }
-  50% { box-shadow: 0 0 0 10px rgba(197, 168, 74, 0); }
-}
-.gold-pulse { animation: goldPulse 2s ease-in-out infinite; }
-
-.scrollbar-thin::-webkit-scrollbar { width: 5px; height: 5px; }
-.scrollbar-thin::-webkit-scrollbar-thumb { background: #dcd0bc; border-radius: 99px; }
-.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-
-/* Custom Chat Style bubbles (Mori aesthetic) */
-.chat-bubble-me {
-  background: linear-gradient(135deg, #0f0f11 0%, #1e1d21 100%);
-  color: #fefcf3;
-  border: 1px solid rgba(197, 168, 74, 0.25);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-}
-.chat-bubble-other {
-  background: #ffffff;
-  color: var(--brand-black);
-  border: 1px solid #eae3ce;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+.mori-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
 }
 
-/* Elegant cards & borders styling */
 .mori-card {
-  background: #ffffff;
-  border: 1px solid #eadecb;
-  border-radius: 1.5rem;
-  box-shadow: 0 4px 20px rgba(15, 15, 17, 0.02);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  background: var(--white);
+  border: 1px solid #e8e2d4;
+  border-radius: 2rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 .mori-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(197, 168, 74, 0.08);
-  border-color: var(--brand-gold);
+  border-color: var(--gold);
+  box-shadow: 0 12px 40px rgba(197, 168, 74, 0.08);
+  transform: translateY(-4px);
 }
 
 .mori-input {
-  background: #fdfcf7;
-  border: 1px solid #e0d5c1;
-  border-radius: 0.75rem;
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
-  outline: none;
-  transition: all 0.2s;
+  background: var(--white);
+  border: 1px solid #e8e2d4;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
 }
 .mori-input:focus {
-  border-color: var(--brand-gold);
-  box-shadow: 0 0 0 2px rgba(197, 168, 74, 0.1);
-  background: #fff;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(197, 168, 74, 0.1);
+  outline: none;
 }
 
-.mori-button-primary {
-  background: linear-gradient(135deg, #c5a84a 0%, #9b8038 100%);
-  color: #0f0f11;
-  font-weight: 800;
-  border-radius: 0.75rem;
-  transition: all 0.2s;
-  box-shadow: 0 4px 15px rgba(197, 168, 74, 0.25);
+/* Elegant Gold Accents */
+.gold-text { color: var(--gold); }
+.gold-border { border-color: var(--gold); }
+.gold-bg { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-deep) 100%); }
+
+/* Mobile Bottom Navigation */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border-top: 1px solid #e8e2d4;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 100;
+  display: none;
 }
-.mori-button-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(197, 168, 74, 0.35);
+@media (max-width: 768px) {
+  .mobile-bottom-nav { display: flex; }
+}
+
+/* Beautiful Loading States */
+.skeleton {
+  background: linear-gradient(90deg, #f4f1e9 25%, #ede8dc 50%, #f4f1e9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* PWA Install Prompt */
+.install-prompt {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--black);
+  color: var(--gold);
+  padding: 1rem 1.5rem;
+  border-radius: 9999px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  z-index: 200;
 }

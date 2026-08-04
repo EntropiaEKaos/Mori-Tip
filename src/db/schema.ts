@@ -52,7 +52,6 @@ export const productTypeEnum = pgEnum("product_type", [
 ]);
 export const promoStatusEnum = pgEnum("promo_status", ["active", "paused", "ended"]);
 export const paymentStatusEnum = pgEnum("payment_status", ["pending", "approved", "rejected", "refunded"]);
-export const platformEnum = pgEnum("platform", ["ios", "android", "web"]);
 
 export const users = pgTable(
   "users",
@@ -72,8 +71,10 @@ export const users = pgTable(
     isBanned: boolean("is_banned").default(false).notNull(),
     isPremium: boolean("is_premium").default(false).notNull(),
     premiumUntil: timestamp("premium_until", { withTimezone: true }),
+    // Gamification
     xp: integer("xp").default(0).notNull(),
     level: integer("level").default(1).notNull(),
+    // Economy
     moris: integer("moris").default(100).notNull(),
     credits: integer("credits").default(0).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -476,6 +477,7 @@ export const transactions = pgTable("transactions", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+// ===== Mercado Pago Deposits & Real Transactions =====
 export const mpPayments = pgTable("mp_payments", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
@@ -490,37 +492,13 @@ export const mpPayments = pgTable("mp_payments", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+// ===== Configurações Globais Configurable via Admin =====
 export const systemSettings = pgTable("system_settings", {
   id: serial("id").primaryKey(),
   key: varchar("key", { length: 60 }).notNull(),
-  value: text("value").notNull(),
+  value: text("value").notNull(), // string or stringified JSON
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [uniqueIndex("settings_key_unique").on(t.key)]);
-
-// ===== Mobile Apps & Feature Flags (Admin Controlled) =====
-export const mobileApps = pgTable("mobile_apps", {
-  id: serial("id").primaryKey(),
-  platform: platformEnum("platform").notNull(),
-  version: varchar("version", { length: 20 }).notNull(),
-  buildNumber: integer("build_number").default(1).notNull(),
-  isForceUpdate: boolean("is_force_update").default(false).notNull(),
-  minSupportedVersion: varchar("min_supported_version", { length: 20 }).default("1.0.0").notNull(),
-  storeUrl: text("store_url"),
-  releaseNotes: text("release_notes").default("").notNull(),
-  isActive: boolean("is_active").default(true).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
-
-export const featureFlags = pgTable("feature_flags", {
-  id: serial("id").primaryKey(),
-  key: varchar("key", { length: 60 }).notNull(),
-  name: varchar("name", { length: 100 }).notNull(),
-  description: text("description").default("").notNull(),
-  enabledForRoles: jsonb("enabled_for_roles").$type<string[]>().default(["user", "host", "guide", "admin"]).notNull(),
-  enabledForPremium: boolean("enabled_for_premium").default(false).notNull(),
-  isActive: boolean("is_active").default(true).notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-}, (t) => [uniqueIndex("feature_flags_key_unique").on(t.key)]);
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
@@ -543,5 +521,3 @@ export type Inn = typeof inns.$inferSelect;
 export type Moment = typeof moments.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type Booking = typeof bookings.$inferSelect;
-export type FeatureFlag = typeof featureFlags.$inferSelect;
-export type MobileApp = typeof mobileApps.$inferSelect;
