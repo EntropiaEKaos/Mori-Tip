@@ -1,121 +1,128 @@
-# ☁️ Deploy Mori na Vercel + PostgreSQL (Vercel Postgres)
+# ☁️ Deploy Mori na Vercel + Vercel Postgres (Guia Completo)
 
-Guia completo e atualizado para deploy do Mori na Vercel usando **Vercel Postgres** (banco serverless gerenciado diretamente pela Vercel).
+## 1. Visão Geral
+- **Frontend:** Vercel (Next.js)
+- **Banco:** Vercel Postgres (PostgreSQL serverless)
+- **PWA:** Manifest já configurado, instalável
+- **Mobile:** React Native + Expo (apps separados)
 
----
+## 2. Pré-requisitos
+- Conta gratuita em [vercel.com](https://vercel.com)
+- Repositório GitHub com o código
 
-## 1. Pré-requisitos
+## 3. Deploy Passo a Passo
 
-- Conta gratuita na [Vercel](https://vercel.com)
-- Repositório GitHub com o código do Mori
-- Node.js 20+ localmente
-
----
-
-## 2. Criar o Projeto na Vercel
-
+### 3.1 Criar projeto na Vercel
 1. Acesse [vercel.com/new](https://vercel.com/new)
-2. Conecte sua conta GitHub
+2. Conecte GitHub
 3. Selecione o repositório `mori`
-4. Na tela de configuração, clique em **"Add New Database"** → **Vercel Postgres**
+4. Clique em **Add New Database** → **Postgres**
+5. A Vercel cria o banco E configura `DATABASE_URL` automaticamente
 
-A Vercel cria automaticamente:
-- Um banco PostgreSQL serverless
-- A variável `DATABASE_URL` já configurada
-- Branch de preview automático
+### 3.2 Configurar Variáveis de Ambiente
+Vá em **Settings → Environment Variables** e adicione:
 
-Clique em **Deploy**.
+| Variável | Valor |
+|----------|-------|
+| `JWT_SECRET` | string aleatória 64+ chars |
 
----
+A `DATABASE_URL` é injetada automaticamente pelo Vercel Postgres.
 
-## 3. Aplicar o Schema no Banco
+### 3.3 Deploy
+Clique em **Deploy**. A Vercel:
+- Detecta Next.js automaticamente
+- Roda `npm install` + `next build`
+- Sobe para CDN global
 
-Após o primeiro deploy bem-sucedido:
-
+### 3.4 Aplicar Schema no Banco
+Após o primeiro deploy, no seu terminal local:
 ```bash
-# Pegue a connection string no painel da Vercel:
-# Settings → Environment Variables → DATABASE_URL
-
-# Execute localmente:
+# Pegue a connection string em Settings → Data → Postgres
 npx drizzle-kit push
 ```
 
-Ou use o **Vercel CLI** para rodar migrations no banco de produção:
-
+Ou via Vercel CLI:
 ```bash
+npm i -g vercel
 vercel env pull .env.production
-DATABASE_URL=$(vercel env get DATABASE_URL) npx drizzle-kit push
+DATABASE_URL=$(cat .env.production | grep DATABASE_URL | cut -d'"' -f2) npx drizzle-kit push
 ```
 
----
-
-## 4. Configurar Variáveis de Ambiente
-
-No painel da Vercel, adicione as seguintes variáveis:
-
-| Nome | Valor | Observação |
-|------|-------|------------|
-| `JWT_SECRET` | Uma string longa e aleatória (mín. 64 caracteres) | Obrigatória |
-| `DATABASE_URL` | Gerada automaticamente pelo Vercel Postgres | Já deve existir |
-
----
-
-## 5. Seed Inicial (Dados Demo)
-
+### 3.5 Popular dados demo (opcional)
 ```bash
 curl -X POST https://seu-projeto.vercel.app/api/seed
 ```
 
-> **Importante:** Após popular os dados, **remova ou proteja** a rota `/api/seed` em produção.
+### 3.6 Domínio Customizado
+**Settings → Domains** → adicione seu domínio (ex: `mori.app.br`).
 
----
+## 4. Configurar Integrações (via Admin)
 
-## 6. Domínio Customizado
+Acesse `https://seu-dominio.com/admin` e vá na aba **Integrações**:
 
-1. Vercel Dashboard → seu projeto → **Settings → Domains**
-2. Adicione seu domínio (ex: `mori.app.br`)
-3. Siga as instruções de DNS
+- **Mercado Pago:** Obtenha em [mercadopago.com.br/developers](https://www.mercadopago.com.br/developers)
+- **Firebase:** [console.firebase.google.com](https://console.firebase.google.com)
+- **OneSignal:** [onesignal.com](https://onesignal.com)
 
----
+As chaves são salvas no banco e ativam imediatamente.
 
-## 7. Configurar Integrações (Mercado Pago, Firebase, OneSignal)
+## 5. Variáveis Opcionais (Avançado)
 
-Após o deploy, acesse `/admin` e vá até a aba **Integrações**. Insira as chaves reais:
+| Variável | Uso |
+|----------|-----|
+| `MP_ACCESS_TOKEN` | Override do Access Token MP |
+| `ONESIGNAL_APP_ID` | Override do App ID OneSignal |
+| `FIREBASE_PROJECT_ID` | Override do Project ID Firebase |
 
-- Mercado Pago Access Token
-- Firebase Project ID + API Key
-- OneSignal App ID + REST API Key
-
-Todas as chaves são salvas na tabela `system_settings`.
-
----
-
-## 8. PWA — Instalação no Celular
-
-O Mori já possui manifest.json configurado. Para instalar como app:
-
-- **iOS:** Abra no Safari → Compartilhar → Adicionar à Tela Inicial
-- **Android:** Abra no Chrome → Menu → Instalar App
-
----
-
-## 9. Monitoramento e Logs
-
-- **Vercel Logs:** Dashboard → Deployments → Logs
-- **Vercel Analytics:** Ative em Settings → Analytics
-- **Sentry (recomendado):** Adicione o SDK do Sentry para capturar erros de produção
-
----
-
-## 10. Checklist Final
+## 6. Checklist de Produção
 
 - [ ] Build passou sem erros
-- [ ] Healthcheck responde `{ "ok": true }`
-- [ ] Login e registro funcionam
-- [ ] Feed carrega corretamente
-- [ ] Upload de foto funciona
-- [ ] Integrações configuradas no Admin
-- [ ] Domínio apontando corretamente
-- [ ] Rota `/api/seed` removida/protegida
+- [ ] Healthcheck `/api/health` → `{ "ok": true }`
+- [ ] Schema aplicado no Postgres
+- [ ] `JWT_SECRET` forte e único
+- [ ] `/api/seed` removida ou protegida em produção
+- [ ] Domínio com HTTPS ativo
+- [ ] Integrações configuradas (se usadas)
+- [ ] Sentry/Vercel Analytics ativado
 
-Pronto! Seu Mori está rodando em produção com PostgreSQL serverless, CI/CD automático e PWA instalável. 🧭
+## 7. Custos Estimados
+
+| Serviço | Plano Free | Quando Cobrar |
+|---------|------------|---------------|
+| Vercel Hosting | 100GB banda, deployments ilimitados | Banda extra |
+| Vercel Postgres | 256MB storage, 60h compute | Acima do limite |
+| Mercado Pago | Sem mensalidade | Por transação |
+| OneSignal | 10k push/mês | Acima do limite |
+| Firebase Auth | 50k verificações/mês | Acima do limite |
+
+## 8. Monitoramento
+
+- **Vercel Logs:** Dashboard → Deployments → Logs (streaming)
+- **Vercel Analytics:** Settings → Analytics (Web Vitals)
+- **Sentry (recomendado):** Adicione o SDK para tracking de erros
+
+## 9. CI/CD Automático
+
+Cada `git push` na branch principal:
+1. Dispara novo build
+2. Aplica migrations automaticamente (configure com `vercel.json` se necessário)
+3. Atualiza produção sem downtime
+
+## 10. Troubleshooting
+
+| Erro | Solução |
+|------|---------|
+| `relation "users" does not exist` | Rode `npx drizzle-kit push` |
+| `password authentication failed` | Verifique `DATABASE_URL` no painel |
+| `CORS error` | API está no mesmo domínio, não precisa de config |
+| Build OOM | Use `force-dynamic` no layout (já configurado) |
+
+## 11. PWA — Instalação Mobile
+
+A landing page é uma **PWA completa**:
+- iOS: Safari → Compartilhar → Adicionar à Tela Inicial
+- Android: Chrome → Menu → Instalar App
+
+O app aparece com o ícone da bússola dourada e abre em modo standalone.
+
+Pronto! Seu Mori está em produção. 🧭

@@ -2,26 +2,44 @@
   "expo": {
     "name": "Mori",
     "slug": "mori-mobile",
-    "version": "1.0.0",
+    "version": "2.5.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "automatic",
+    "scheme": "mori",
     "splash": {
-      "backgroundColor": "#0f0f11",
-      "resizeMode": "contain"
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f0f11"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.mori.corporate"
+      "bundleIdentifier": "app.mori.mobile",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Mori precisa de acesso à câmera para tirar fotos dos momentos.",
+        "NSMicrophoneUsageDescription": "Mori precisa do microfone para gravar mensagens de voz.",
+        "NSPhotoLibraryUsageDescription": "Mori precisa acessar suas fotos para compartilhar momentos."
+      }
     },
     "android": {
+      "package": "app.mori.mobile",
       "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0f0f11"
-      },
-      "package": "app.mori.corporate"
+      }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-camera",
+      "expo-notifications",
+      "expo-secure-store"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-expo-project-id-here"
+      }
     }
   }
 }

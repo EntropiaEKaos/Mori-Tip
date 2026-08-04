@@ -17,6 +17,7 @@ import {
   XCircle,
   Trash2,
   Settings,
+  HardDrive,
 } from "lucide-react";
 import { Avatar } from "@/components/avatar";
 import { cn, timeAgo } from "@/lib/utils";
@@ -68,7 +69,7 @@ type AdminInn = {
   ownerUsername: string;
 };
 
-const TABS = ["stats", "users", "posts", "inns", "broadcast", "settings"] as const;
+const TABS = ["stats", "users", "posts", "inns", "broadcast", "settings", "storage"] as const;
 type Tab = (typeof TABS)[number];
 
 export default function AdminPage() {
@@ -92,6 +93,21 @@ export default function AdminPage() {
     firebase_api_key: "",
   });
   const [saveMsg, setSaveMsg] = useState("");
+
+  // Storage Config
+  const [storage, setStorage] = useState({
+    provider: "server",
+    s3_endpoint: "",
+    s3_region: "us-east-1",
+    s3_bucket: "",
+    s3_access_key: "",
+    s3_secret_key: "",
+    s3_public_url: "",
+    cloudinary_cloud_name: "",
+    cloudinary_api_key: "",
+    cloudinary_api_secret: "",
+  });
+  const [storageMsg, setStorageMsg] = useState("");
 
   useEffect(() => {
     if (loading) return;
@@ -130,6 +146,24 @@ export default function AdminPage() {
             onesignal_api_key: d.onesignal_api_key || "",
             firebase_project_id: d.firebase_project_id || "",
             firebase_api_key: d.firebase_api_key || "",
+          });
+        }
+      }
+      if (tab === "storage") {
+        const r = await fetch("/api/admin/settings");
+        if (r.ok) {
+          const d = await r.json();
+          setStorage({
+            provider: d.storage_provider || "server",
+            s3_endpoint: d.s3_endpoint || "",
+            s3_region: d.s3_region || "us-east-1",
+            s3_bucket: d.s3_bucket || "",
+            s3_access_key: d.s3_access_key || "",
+            s3_secret_key: d.s3_secret_key || "",
+            s3_public_url: d.s3_public_url || "",
+            cloudinary_cloud_name: d.cloudinary_cloud_name || "",
+            cloudinary_api_key: d.cloudinary_api_key || "",
+            cloudinary_api_secret: d.cloudinary_api_secret || "",
           });
         }
       }
@@ -214,6 +248,21 @@ export default function AdminPage() {
     }
   }
 
+  async function saveStorage(e: React.FormEvent) {
+    e.preventDefault();
+    setStorageMsg("");
+    const r = await fetch("/api/admin/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(storage),
+    });
+    if (r.ok) {
+      setStorageMsg(`Storage configurado: ${storage.provider.toUpperCase()}`);
+    } else {
+      setStorageMsg("Falha ao salvar storage.");
+    }
+  }
+
   if (!me || me.role !== "admin") return null;
 
   return (
@@ -246,7 +295,9 @@ export default function AdminPage() {
               ? "Pousadas"
               : t === "broadcast"
               ? "Comunicados"
-              : "Integrações"}
+              : t === "settings"
+              ? "Integrações"
+              : "Storage"}
           </button>
         ))}
       </div>
@@ -425,6 +476,102 @@ export default function AdminPage() {
             <Send size={14} /> Enviar broadcast
           </button>
           {broadcastMsg && <p className="text-sm text-cyan-700">{broadcastMsg}</p>}
+        </form>
+      )}
+
+      {tab === "storage" && (
+        <form onSubmit={saveStorage} className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4">
+          <h2 className="font-extrabold flex items-center gap-1 text-cyan-700">
+            <HardDrive size={18} /> Storage & Mídia
+          </h2>
+          <p className="text-xs text-slate-500">Escolha onde as imagens, vídeos e mídias enviadas pelos usuários serão armazenadas.</p>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            {[
+              { value: "server", label: "Servidor Local", desc: "Imagens como dataURL no Postgres. Ideal para demo/testes." },
+              { value: "s3", label: "AWS S3", desc: "Bucket S3 da Amazon Web Services." },
+              { value: "r2", label: "Cloudflare R2", desc: "R2 da Cloudflare, compatível com API S3 (mesma config)." },
+              { value: "cloudinary", label: "Cloudinary", desc: "CDN com transformações automáticas de imagem." },
+            ].map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setStorage({ ...storage, provider: opt.value })}
+                className={`text-left p-4 rounded-2xl border transition ${
+                  storage.provider === opt.value
+                    ? "border-cyan-500 bg-cyan-50"
+                    : "border-slate-200 hover:border-cyan-300"
+                }`}
+              >
+                <div className="font-bold text-sm flex items-center justify-between">
+                  {opt.label}
+                  {storage.provider === opt.value && <span className="text-cyan-600">●</span>}
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">{opt.desc}</p>
+              </button>
+            ))}
+          </div>
+
+          {(storage.provider === "s3" || storage.provider === "r2") && (
+            <div className="border-t border-slate-100 pt-4 space-y-3">
+              <h3 className="font-bold text-sm text-slate-800">
+                {storage.provider === "r2" ? "Configuração Cloudflare R2" : "Configuração AWS S3"}
+              </h3>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <label className="text-xs text-slate-600 block">Endpoint (R2 ou custom)
+                  <input value={storage.s3_endpoint} onChange={(e) => setStorage({ ...storage, s3_endpoint: e.target.value })} placeholder={storage.provider === "r2" ? "https://<account>.r2.cloudflarestorage.com" : "https://s3.us-east-1.amazonaws.com"} className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-xs mt-1 outline-none focus:border-cyan-500" />
+                </label>
+                <label className="text-xs text-slate-600 block">Região
+                  <input value={storage.s3_region} onChange={(e) => setStorage({ ...storage, s3_region: e.target.value })} placeholder="us-east-1" className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-xs mt-1 outline-none focus:border-cyan-500" />
+                </label>
+                <label className="text-xs text-slate-600 block">Bucket
+                  <input value={storage.s3_bucket} onChange={(e) => setStorage({ ...storage, s3_bucket: e.target.value })} placeholder="mori-uploads" className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-xs mt-1 outline-none focus:border-cyan-500" />
+                </label>
+                <label className="text-xs text-slate-600 block">URL pública (opcional)
+                  <input value={storage.s3_public_url} onChange={(e) => setStorage({ ...storage, s3_public_url: e.target.value })} placeholder="https://cdn.mori.app" className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-xs mt-1 outline-none focus:border-cyan-500" />
+                </label>
+                <label className="text-xs text-slate-600 block">Access Key ID
+                  <input type="password" value={storage.s3_access_key} onChange={(e) => setStorage({ ...storage, s3_access_key: e.target.value })} placeholder="AKIA..." className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-xs mt-1 outline-none focus:border-cyan-500" />
+                </label>
+                <label className="text-xs text-slate-600 block">Secret Access Key
+                  <input type="password" value={storage.s3_secret_key} onChange={(e) => setStorage({ ...storage, s3_secret_key: e.target.value })} placeholder="••••••" className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-xs mt-1 outline-none focus:border-cyan-500" />
+                </label>
+              </div>
+              <p className="text-[11px] text-slate-500">
+                {storage.provider === "r2"
+                  ? "Para R2, gere um Access Key em Cloudflare → R2 → Manage R2 API Tokens."
+                  : "Para S3, crie um IAM User com permissão PutObject no bucket."}
+              </p>
+            </div>
+          )}
+
+          {storage.provider === "cloudinary" && (
+            <div className="border-t border-slate-100 pt-4 space-y-3">
+              <h3 className="font-bold text-sm text-slate-800">Configuração Cloudinary</h3>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <label className="text-xs text-slate-600 block">Cloud Name
+                  <input value={storage.cloudinary_cloud_name} onChange={(e) => setStorage({ ...storage, cloudinary_cloud_name: e.target.value })} placeholder="mori-cloud" className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-xs mt-1 outline-none focus:border-cyan-500" />
+                </label>
+                <label className="text-xs text-slate-600 block">API Key
+                  <input value={storage.cloudinary_api_key} onChange={(e) => setStorage({ ...storage, cloudinary_api_key: e.target.value })} placeholder="1234567890" className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-xs mt-1 outline-none focus:border-cyan-500" />
+                </label>
+                <label className="text-xs text-slate-600 block sm:col-span-2">API Secret
+                  <input type="password" value={storage.cloudinary_api_secret} onChange={(e) => setStorage({ ...storage, cloudinary_api_secret: e.target.value })} placeholder="••••••" className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-xs mt-1 outline-none focus:border-cyan-500" />
+                </label>
+              </div>
+            </div>
+          )}
+
+          {storage.provider === "server" && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
+              ⚠️ Modo demo: as mídias ficam como dataURL no Postgres. Para produção, escolha S3, R2 ou Cloudinary.
+            </div>
+          )}
+
+          <button className="bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl px-4 py-2 font-bold text-xs">
+            Salvar Storage
+          </button>
+          {storageMsg && <p className="text-xs font-semibold text-green-700">{storageMsg}</p>}
         </form>
       )}
 

@@ -1,227 +1,174 @@
 # Mori 🧭 — Rede Social de Pousadas e Turismo
 
-> **Versão atual:** 2.0 Premium — com Mori Concierge IA, Mercado Pago, Firebase Phone Auth, OneSignal Push, Marketplace, Reservas Premium e Gamificação.
+> **Versão atual:** 2.5 Premium — Highlights, Pinned Posts, Scheduled, Polls, Reviews Estruturados, Multi-language, App Mobile.
 
-Plataforma completa de turismo digital combinando rede social (Twitter + Instagram), lives WebRTC, marketplace, booking engine e assistente de inteligência artificial — tudo integrado com economia interna em **Moris** e pagamentos reais via Mercado Pago.
+Plataforma completa de turismo digital combinando rede social (Twitter + Instagram), lives WebRTC, marketplace, booking engine, assistente de IA e roteiros colaborativos — tudo integrado com economia interna em **Moris** e pagamentos reais via Mercado Pago.
 
-**Stack:** Next.js 16 (App Router) · React 19 · Drizzle ORM · PostgreSQL · Tailwind CSS 4 · WebRTC · Canvas API
-
----
-
-## ✨ Funcionalidades Completas
-
-| Módulo | Descrição |
-|--------|-----------|
-| **Feed social** | 7 tipos de post (texto, foto, carrossel, vídeo, dica, review, promo), 6 reações, 8 filtros fotográficos, comentários, follows, tags e geolocalização |
-| **Momentos (Stories)** | Duração configurável de 1 a 24h, viewer fullscreen com progresso, views |
-| **Mori Concierge IA** | Assistente inteligente que vasculha pousadas, guias e roteiros em tempo real via chat |
-| **Lives WebRTC** | Transmissão ao vivo com câmera/mic, chat da live, sinalização via banco |
-| **Chat estilo WhatsApp** | Conversas 1:1, texto e imagem, polling, indicadores de leitura e não lidas |
-| **Roteiros de viagem** | Criação de itinerários dia a dia com paradas detalhadas |
-| **Guias locais** | Perfis de guias com especialidades, idiomas e preço/dia |
-| **Pousadas + Reservas** | Cadastro de pousadas, busca, modal de reserva com datas, Premium-gated |
-| **Marketplace** | Compra e venda em Moris (físico, digital, experiência, serviço), fee 5% |
-| **Gamificação** | 12 badges, níveis com XP, barra de progresso, bônus de level-up |
-| **Carteira + Mercado Pago** | Saldo Moris + créditos ads, compra com BRL real, extrato financeiro |
-| **Premium** | 500 Moris/30 dias, +200 bônus, unlock reservas, badge exclusiva |
-| **Créditos de anúncio** | 4 pacotes (Starter a Agency), campanhas promovidas no feed |
-| **Notificações** | In-app com 11 tipos + push via OneSignal (configurável no admin) |
-| **Login Firebase Phone** | Autenticação por número de celular com SMS (simulação elegante + integração real) |
-| **Admin completo** | Dashboard stats, gestão de usuários/posts/pousadas, broadcast, integrações (chaves API) |
-| **Offline/Preview** | Páginas `/preview` e `/offline` para avaliação visual e demo |
+**Stack:** Next.js 16 (App Router) · React 19 · Drizzle ORM · PostgreSQL · Tailwind CSS 4 · WebRTC · Canvas API · React Native (Expo) para mobile
 
 ---
 
-## 🚀 Rodando Localmente
+## ✨ Funcionalidades (v2.5)
 
-### Pré-requisitos
-- Node.js 20+
-- PostgreSQL 14+
-- npm
+### 📱 Rede Social
+- 7 tipos de post (texto, foto, carrossel, vídeo, dica, review, promo)
+- 6 reações com emojis + 8 filtros fotográficos aplicados via Canvas
+- Momentos (Stories) de 1–24h com viewer fullscreen e reactions
+- Chat estilo WhatsApp com polling
+- Lives WebRTC com chat ao vivo
+- **Pinned Posts** (até 3 fixados no perfil)
+- **Polls/Enquetes** em posts
+- **Story Highlights** (destaques fixos no perfil, estilo Instagram)
+- **Story Reactions** (6 emojis em momentos)
+- Comentários em thread, follows, tags, geolocalização
 
-### Setup
+### ✈️ Travel
+- **Roteiros de viagem** com paradas dia a dia
+- **Roteiros Colaborativos** (convite por @username, roles)
+- **Guias locais** com especialidades e preço/dia
+- **Pousadas** com busca, comodidades e página de detalhe
+- **Reviews estruturados** (1-5⭐, prós/contras) para pousadas, guias e produtos
+- Sistema de **Reservas Premium** com calendário e Moris
+
+### 💎 Economia
+- **Moris** — moeda interna (welcome, rewards, vendas)
+- **Créditos** — moeda de anúncios
+- **Premium** — 500 Moris/30d, +200 bônus, unlock reservas
+- **Marketplace** — 4 tipos de produto, fee 5%
+- **Wallet** com extrato completo
+
+### 🤖 Inteligência & Integrações
+- **Mori Concierge IA** — chat que vasculha pousadas, guias e roteiros
+- **Mercado Pago** — checkout real com 4 pacotes de Moris (BRL)
+- **Firebase Phone Auth** — login por SMS com OTP
+- **OneSignal Push** — notificações externas
+- **Multi-language** — 🇧🇷 PT, 🇺🇸 EN, 🇪🇸 ES
+- **Push Notifications** em tempo real
+
+### 📊 Gamificação
+- 12 badges com recompensas em Moris e XP
+- Níveis com fórmula exponencial
+- Level-up automático com bônus
+- Página dedicada `/gamification`
+
+### 🎨 Admin
+- Stats em tempo real
+- Gestão de usuários (role, ban, verify)
+- Moderação de posts (hide/delete)
+- Aprovação de pousadas
+- Broadcast de notificações
+- **Configurações de Integrações** (chaves de API)
+
+### 📱 Mobile
+- App React Native + Expo (iOS + Android)
+- PWA instalável (web)
+- Documentação completa em `docs/MOBILE_APP.md`
+
+### ✨ UI/UX Premium
+- Paleta dourado (#c5a84a) + preto (#0f0f11) + branco
+- Glassmorphism nas barras
+- Hover effects com glow dourado
+- Bússola SVG em todo o app
+- Tipografia serifada de luxo
+
+---
+
+## 🚀 Setup Local
+
 ```bash
-git clone <seu-repo>
+git clone <repo>
 cd mori
 npm install
 
-# Configure .env:
+# .env
 echo 'DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/app_db' > .env
-echo 'JWT_SECRET=seu-segredo-super-longo-e-aleatorio-aqui' >> .env
+echo 'JWT_SECRET=seu-segredo-longo-e-aleatorio' >> .env
 
-# Crie as tabelas:
 npx drizzle-kit push
-
-# Rode o app:
 npm run dev
 
-# Popule dados demo (outro terminal):
+# Seed (outro terminal)
 curl -X POST http://localhost:3000/api/seed
 ```
 
 Abra **http://localhost:3000**
 
 ### Contas Demo
-| Usuário | Senha | Papel |
-|---------|-------|-------|
-| `admin` | `admin123` | Admin Premium (acesso a `/admin`) |
+| Usuário | Senha | Perfil |
+|---------|-------|--------|
+| `admin` | `admin123` | Admin Premium |
 | `marina` | `mori123` | Viajante Premium |
-| `pousada_do_sol` | `mori123` | Host Premium + reservas |
-| `guia_pedro` | `mori123` | Guia local verificado |
-| `rafaelmochila` | `mori123` | Viajante fotógrafo |
-| `juliana_trip` | `mori123` | Viajante / seller marketplace |
-| `chale_verde` | `mori123` | Host Premium |
+| `pousada_do_sol` | `mori123` | Host |
+| `guia_pedro` | `mori123` | Guia verificado |
+| `juliana_trip` | `mori123` | Viajante/Seller |
 
 ---
 
-## ☁️ Deploy na Vercel (Produção)
+## ☁️ Deploy Vercel + Vercel Postgres
 
-### 1. Banco de dados gerenciado
-Use um PostgreSQL serverless:
-- **[Neon](https://neon.tech)** (recomendado — free tier generoso, serverless, branchable)
-- [Supabase](https://supabase.com)
-- [Vercel Postgres](https://vercel.com/storage/postgres)
+Veja guia completo em [`docs/DEPLOY_VERCEL_POSTGRES.md`](./docs/DEPLOY_VERCEL_POSTGRES.md).
 
-Copie a string de conexão (`DATABASE_URL`).
-
-### 2. Deploy do projeto
-```bash
-# Opção A: CLI
-npm i -g vercel
-vercel
-
-# Opção B: GitHub
-# Conecte o repositório em vercel.com/new
-```
-
-### 3. Environment Variables
-No dashboard da Vercel: **Settings → Environment Variables**
-
-```
-DATABASE_URL=postgresql://user:pass@host/db?sslmode=require
-JWT_SECRET=uma-frase-longa-e-aleatoria-com-64-caracteres-no-minimo
-```
-
-### 4. Aplicar schema no banco de produção
-```bash
-# Localmente, apontando para o banco de produção:
-DATABASE_URL="postgresql://..." npx drizzle-kit push
-```
-
-### 5. Seed (opcional)
-```bash
-curl -X POST https://seu-dominio.vercel.app/api/seed
-```
-> ⚠️ Em produção, **proteja ou remova** a rota `/api/seed`. Adicione um secret compartilhado ou delete o arquivo.
-
-### 6. Configurar integrações via Admin
-Acesse `/admin` → aba **Integrações** e preencha as chaves:
-- **Mercado Pago:** Access Token (obtido em [mercadopago.com.br/developers](https://www.mercadopago.com.br/developers))
-- **Firebase:** Project ID e Web API Key (obtidas no [Firebase Console](https://console.firebase.google.com))
-- **OneSignal:** App ID e REST API Key (obtidas em [onesignal.com](https://onesignal.com))
-
-### 7. Domínio customizado
-**Vercel → Domains** → adicione seu domínio.
+TL;DR:
+1. Crie projeto na Vercel e adicione **Vercel Postgres**
+2. Adicione `JWT_SECRET` em Environment Variables
+3. Após deploy, rode `npx drizzle-kit push` apontando para o banco de produção
+4. Acesse `/admin` → **Integrações** e configure as chaves
 
 ---
 
-## 📁 Estrutura do Projeto
+## 📊 Banco de Dados
 
-```
-src/
-  app/
-    (app)/              # Shell autenticado (30+ páginas)
-      admin/            # Painel admin com 6 abas
-      concierge/        # Assistente IA
-      feed/             # Feed + composer + momentos
-      gamification/     # Níveis e badges
-      guias/            # Guias locais
-      lives/            # Lives WebRTC
-      marketplace/      # Loja em Moris
-      messages/         # Chat
-      notifications/    # Inbox
-      pousadas/         # Pousadas + modal reserva
-      premium/          # Assinatura
-      promote/          # Anúncios
-      reservas/         # Bookings
-      roteiros/         # Itinerários
-      settings/         # Editar perfil
-      u/[username]/     # Perfil público
-      wallet/           # Carteira + Mercado Pago
-    api/                # 57+ endpoints REST
-    login|register|preview|offline/
-  components/           # 8 componentes reutilizáveis
-  db/                   # schema.ts (25 tabelas, 12 enums, 30+ índices)
-  lib/                  # auth, gamification, notifications, rtc, utils
-public/                 # Ícones PWA, manifest.json
-docs/                   # Documentação completa (5 arquivos)
-```
+**32 tabelas** com Drizzle ORM, 14 enums nativos PostgreSQL, 30+ índices.
+
+| Categoria | Tabelas |
+|-----------|---------|
+| Core | users, posts, comments, likes, follows, notifications |
+| Realtime | conversations, messages, lives, live_messages, rtc_signals, moment_views |
+| Travel | inns, bookings, guides, itineraries, itinerary_collaborators |
+| Economy | products, orders, credit_packages, promotions, mp_payments, transactions, system_settings |
+| Gamification | badges, user_badges |
+| Conteúdo | moments, highlights, reviews, scheduled_posts, pinned_posts, story_reactions, post_polls, post_poll_votes |
 
 ---
 
-## 📊 Tabelas do Banco (25)
+## 📚 Documentação
 
-`users`, `posts`, `comments`, `likes`, `follows`, `notifications`, `conversations`, `conversation_members`, `messages`, `lives`, `live_messages`, `rtc_signals`, `moments`, `moment_views`, `inns`, `bookings`, `itineraries`, `guides`, `products`, `orders`, `badges`, `user_badges`, `promotions`, `credit_packages`, `mp_payments`, `transactions`, `system_settings`
-
----
-
-## 📚 Documentação Completa
-
-| Documento | Conteúdo |
-|-----------|----------|
-| [Relatório Completo de Funcionalidades](./docs/NOVO_RELATORIO_COMPLETO.md) | Todas as features, integrações e fluxos detalhados |
-| [Documentação Técnica](./docs/TECHNICAL.md) | Arquitetura, APIs, segurança, performance |
-| [Guia do Usuário](./docs/USER_GUIDE.md) | Como usar cada módulo da plataforma |
-| [Modelo Econômico](./docs/ECONOMY.md) | Moris, Créditos, Premium e fluxos financeiros |
+| Doc | Conteúdo |
+|-----|----------|
+| [CHANGELOG.md](./docs/CHANGELOG.md) | Todas as novidades por versão |
+| [TECHNICAL.md](./docs/TECHNICAL.md) | Arquitetura e APIs |
+| [DEPLOY_VERCEL_POSTGRES.md](./docs/DEPLOY_VERCEL_POSTGRES.md) | Deploy em produção |
+| [MOBILE_APP.md](./docs/MOBILE_APP.md) | App React Native + Expo |
+| [USER_GUIDE.md](./docs/USER_GUIDE.md) | Guia do usuário |
+| [ECONOMY.md](./docs/ECONOMY.md) | Moris & Créditos |
 
 ---
 
-## 🔒 Segurança
-
-- Senhas hash com bcrypt (custo 10)
-- JWT httpOnly cookie com expiração de 30 dias
-- Middleware `requireUser()` / `requireAdmin()` em APIs protegidas
-- Verificação de conta banida em todas as requisições autenticadas
-- Configurações sensíveis isoladas em `system_settings` no banco
-- Webhook do Mercado Pago com verificação de status
-
----
-
-## ⚡ Performance
-
-- Build com `force-dynamic` global (compilação instantânea)
-- Índices em author, createdAt, roomId, expiresAt
-- Polling com `?since=` para economia de tráfego
-- Compressão de imagens via Canvas API antes do upload
-- Feed limitado a 50 posts por request
-
----
-
-## 🧪 Scripts
+## 🛠 Scripts
 
 ```bash
-npm run dev          # Dev server
-npm run build        # Build produção
-npm run start        # Iniciar produção
-npx drizzle-kit push # Aplicar schema
-npx next typegen     # Gerar tipos das rotas
-npm exec tsc -- --noEmit  # TypeScript check
+npm run dev
+npm run build
+npx drizzle-kit push
+npx next typegen
+npm exec tsc -- --noEmit
 ```
 
 ---
 
-## 🗺️ Roadmap Futuro
+## 📈 Roadmap
 
-- [ ] Storage de mídia externo (Cloudinary/R2/S3)
-- [ ] WebSocket real (chat + notificações + presença)
-- [ ] SFU para lives (LiveKit)
-- [ ] App mobile React Native/Expo
-- [ ] Mapa interativo (Mapbox/Leaflet)
-- [ ] Calendário de disponibilidade por pousada
-- [ ] Sistema de reviews 1-5 estrelas
-- [ ] Pagamentos com PIX via Mercado Pago
-- [ ] Cupons e descontos
-- [ ] Programa de afiliados
+- [x] Highlights, Pinned, Scheduled
+- [x] Multi-language (PT/EN/ES)
+- [x] Reviews estruturados 1-5
+- [x] Roteiros colaborativos
+- [x] Polls em posts
+- [x] Story Reactions
+- [ ] Mapa interativo (Mapbox)
+- [ ] WebSocket real-time
+- [ ] SFU para lives
+- [ ] Storage externo de mídia
+- [ ] App nas stores
 
 ---
 
