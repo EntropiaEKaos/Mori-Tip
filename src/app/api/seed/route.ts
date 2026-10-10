@@ -17,6 +17,9 @@ import { DEFAULT_BADGES, ensureBadgesSeeded } from "@/lib/gamification";
 import { sql } from "drizzle-orm";
 
 export async function POST() {
+  if (process.env.NODE_ENV === "production" || process.env.ALLOW_DEMO_SEED !== "true") {
+    return Response.json({ error: "Seed de demonstração indisponível." }, { status: 403 });
+  }
   return handleApi(async () => {
     const [{ c }] = await db.select({ c: sql<number>`count(*)::int` }).from(users);
     if (c > 0) {
@@ -261,5 +264,5 @@ export async function POST() {
 }
 
 export async function GET() {
-  return POST();
+  return Response.json({ error: "Use POST explicitamente em desenvolvimento." }, { status: 405 });
 }
