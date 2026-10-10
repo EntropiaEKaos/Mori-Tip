@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { db } from "@/db";
 import { users, type User } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -35,6 +35,7 @@ export async function setSessionCookie(token: string) {
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 30,
+    secure: process.env.NODE_ENV === "production",
   });
 }
 
@@ -46,8 +47,11 @@ export async function clearSessionCookie() {
 export async function getCurrentUser(): Promise<User | null> {
   const store = await cookies();
   const token = store.get(COOKIE_NAME)?.value;
-  if (!token) return null;
-  const payload = verifyToken(token);
+  const authorization = (await headers()).get("authorization");
+  const bearer = authorization?.match(/^Bearer ([^\s]+)$/i)?.[1];
+  const sessionToken = token || bearer;
+  if (!sessionToken) return null;
+  const payload = verifyToken(sessionToken);
   if (!payload) return null;
   const [user] = await db.select().from(users).where(eq(users.id, payload.userId)).limit(1);
   if (!user || user.isBanned) return null;
