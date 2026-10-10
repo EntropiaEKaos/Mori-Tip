@@ -46,14 +46,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (identifier: string, password: string) => {
     const data = await api.post("/api/auth/login", { identifier, password });
-    await api.setToken(data.token || "");
+    await api.setToken(data.token);
     await refresh();
   };
 
   const loginWithPhone = async (phoneNumber: string, otp: string) => {
-    const data = await api.post("/api/auth/phone", { phoneNumber, otp, isMock: true });
-    await api.setToken(data.token || "");
-    await refresh();
+    throw new Error("Login por SMS temporariamente indisponível até validação real do OTP.");
   };
 
   const logout = async () => {
