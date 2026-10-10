@@ -24,6 +24,6 @@ export async function POST(req: Request) {
     if (!okPw) throw new Error("Credenciais inválidas");
     const token = signToken({ userId: user.id, role: user.role });
     await setSessionCookie(token);
-    return { id: user.id, username: user.username, role: user.role };
+    return { id: user.id, username: user.username, role: user.role, token };
   });
 }
